@@ -1,0 +1,145 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+```{r}
+TEAM_ID = c(0, 1, 3)
+TEAM_ID
+set.seed(013)
+```
+
+### Task 1
+
+```{r}
+
+prob_includes_subsequence <- function(N_experiments, n){
+counter = 0
+for(i in 1:N_experiments){
+  lst = sample(0:9, n, replace=T)
+  for (val in 1:(n-2)){
+    if (lst[val] == TEAM_ID[1] && lst[val + 1] == TEAM_ID[2] && lst[val+2] == TEAM_ID[3]) {
+      counter = counter + 1;
+      break;
+    } 
+  } 
+}
+return(counter/N_experiments)
+}
+```
+
+
+```{r}
+N_experiments = 1000
+prob_includes_subsequence(N_experiments, 100)
+```
+
+
+```{r}
+prob_includes_subsequence(N_experiments, 200)
+```
+
+
+```{r}
+prob_includes_subsequence(N_experiments, 1000)
+```
+
+### Task 2
+
+```{r}
+expected_count_includes_subsequence <- function(N_experiments, n){
+  counter = 0
+for(i in 1:N_experiments){
+  lst = sample(0:9, n, replace=T)
+  for (val in 1:(n-2)){
+    if (lst[val] == TEAM_ID[1] && lst[val + 1] == TEAM_ID[2] && lst[val+2] == TEAM_ID[3]) {
+      counter = counter + 1;
+    } 
+  } 
+}
+return(counter/N_experiments)
+}
+```
+
+
+```{r}
+N_experiments = 1000
+expected_count_includes_subsequence(N_experiments, 100)
+```
+
+
+```{r}
+expected_count_includes_subsequence(N_experiments, 200)
+```
+
+
+```{r}
+expected_count_includes_subsequence(N_experiments, 1000)
+```
+### Task 3
+
+```{r}
+
+
+task3 <- function(N_experiments, n){
+k = sum(TEAM_ID)
+s <- replicate(N_experiments, mean(sample(0:k, size = n, replace = T)))
+plot(ecdf(s))
+x <- seq(0,k,by=.01)
+lines(x, pnorm(x, mean = mean(s), sd = sd(s)), col ="green", lwd = 2)
+return(max(abs(ecdf(s)(x)-pnorm(x, mean(s), sd = sd(s)))))
+}
+```
+
+```{r}
+N_experiments = 1000
+task3(N_experiments, 5)
+```
+```{r}
+N_experiments = 1000
+task3(N_experiments, 10)
+```
+```{r}
+N_experiments = 1000
+task3(N_experiments, 50)
+```
+
+### Task 4
+
+```{r}
+task4 <- function(N_experiments, n){
+k = 100*TEAM_ID[1] + 10*TEAM_ID[2] + TEAM_ID[3]
+s <- replicate(N_experiments, mean(rexp(n, rate=k/10)))
+plot(ecdf(s))
+x <- seq(0,k,by=.01)
+lines(x, pnorm(x, mean = mean(s), sd = sd(s)), col ="blue", lwd = 2)
+return(max(abs(ecdf(s)(x)-pnorm(x, mean(s), sd = sd(s)))))}
+```
+
+```{r}
+N_experiments = 1000
+task3(N_experiments, 5)
+```
+
+```{r}
+N_experiments = 1000
+task3(N_experiments, 10)
+```
+
+```{r}
+N_experiments = 1000
+task3(N_experiments, 50)
+```
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Cmd+Shift+Enter*. 
+
+```{r}
+plot(cars)
+```
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Cmd+Option+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Cmd+Shift+K* to preview the HTML file). 
+
+The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
+

@@ -1,0 +1,132 @@
+---
+title: "Hypothesis testing in R"
+output:
+  html_document:
+    df_print: paged
+---
+
+```{r}
+require("BSDA")
+library("BSDA")
+```
+
+## Power function: one-sided test
+
+We test $H_0: \mu = 0$ vs $H_1: \mu >0$
+The graphs of the power functions are give for sample sizes  
+- $n$ in red  
+- $2n$ in blue  
+- $4n$ in green
+
+```{r}
+x <- seq(-.5,1.5,by= .01)
+n <- 10
+plot(x, 1 - pnorm (qnorm(.9) - x*sqrt(n)), type = "l", col = "red", 
+     main = "Power function beta(mu) for one-sided test", xlab = "mu_0 = 0", ylab = "beta(mu)", lwd=2)
+lines(x, 1 - pnorm (qnorm(.9) - x*sqrt(2*n)), type = "l", col = "blue")
+lines(x, 1 - pnorm (qnorm(.9) - x*sqrt(4*n)), type = "l", col = "darkgreen")
+points(0,0.1, col= "red", type = "b", pch = 19)
+```
+
+### Conclusion:  
+- the power of the one-sided test with $\mu_1 = 0.5$ is not large enough for the sample size $n=10$;  
+- this power drastically increases once $n$ has increased to $20$ (blue) and $40$ (green)
+
+
+## Power function: two-sided test
+
+- two-sided in red
+- one-sided in blue
+
+```{r, echo = T}
+x <- seq(-1,1,by= .01)
+n <- 10
+plot(x, 1 - pnorm (qnorm(.9) - abs(x)*sqrt(n)), type = "l", col = "red", 
+     main = "Power function beta(mu) for two-sided test", xlab = "mu_0 = 0", ylab = "beta(mu)", ylim=c(0,1))
+points(0,0.1, col= "red", type = "b")
+lines(x, 1 - pnorm (qnorm(.9) - x*sqrt(2*n)), type = "l", col = "blue")
+```
+
+### Conclusion:   
+- the two-sided test cannot be uniformly most powerful for all alternative $\mu$;  
+- the one-sided test has the power function that is the largest possible one for $\mu > \mu_0$ 
+
+
+## Two-sided Z-test for differences of two means
+
+```{r}
+z <- rnorm(1000, mean = c(-2,2), sd = c(1,2))
+# z.test requires the BSDA package
+z.test(z[z<0], z[z>0], alternative = "g", sigma.x = 1, sigma.y = 2)
+```
+
+### Try one-sided alternatives ("t" = "two-sided" is the default):  
+- "g" = "greater" (the population mean for ${\mathbf{x}}$ is greater than that of ${\mathbf{y}}$)  
+- "l" = "less" (the population mean ${\mathbf{x}}$ is smaller that that of $\overline{\mathbf{y}}$)  
+- see how the p-value changes from 1 to 0
+
+
+## Kolmogorov goodness-of-fit test
+
+### We generate the data from the exponential distribution of rate $\lambda = 0.5$ and test consistency with distribution $\mathcal{E}(\lambda/2)$
+
+```{r}
+n <- 100
+lambda <- .5
+x <- rexp(n,rate = lambda)
+pts <- seq(-1,max(x),by=0.01)
+plot(ecdf(x),col="darkblue")
+lines(pts,pexp(pts,rate = lambda/2),col="red")
+max(abs(pexp(pts, rate = lambda/2)-ecdf(x)(pts)))
+
+```
+
+## Kolmogorov-Smirnov goodness-of-fit test
+
+```{r}
+ks.test(x, "pexp",lambda/2, alternative = "l")  # try alternative = "g"", "t"
+```
+
+## Kolmogorov-Smirnov test: two samples
+
+```{r}
+y <- rexp(n, rate = 1)
+plot(ecdf(x),col = "darkblue")
+lines(ecdf(y), col = "red")
+```
+
+## Kolmogorov-Smirnov test: two samples
+
+```{r}
+ks.test(x,y,alternative = "l")
+```
+
+
+## Pearson chi-squared test
+
+### The chi-squared test on multinomial distribution: are the numbers of rolls with points $j$ consistent with prescribed probabilities? 
+
+```{r}
+rolls <- c(10,5,10,15,12,20)
+chisq.test(rolls, p = c(.2,.1,.1,.2,.2,.2))
+```
+
+## Mendel test
+
+### In this test, the p-value is so high that many believe that his assistent has frauded the results ;)  
+
+```{r}
+peas <- c(315,108,102,31)
+prob <- c(9/16,3/16,3/16,1/16)
+chisq.test(peas, p = prob)
+```
+
+## Aspirin vs Placebo
+
+### We tested homogeneity of the distributions of heart problems among the patients in the test and control group, to detect the effect
+
+```{r}
+heart_attack <- matrix(c(104,189,10933,10845),nrow = 2)
+chisq.test(heart_attack)
+```
+

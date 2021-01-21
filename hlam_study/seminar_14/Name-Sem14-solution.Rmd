@@ -1,0 +1,28 @@
+---
+title: "Class assignment for Topic 14: Hypothesis Testing"
+output: html_notebook
+editor_options: 
+  chunk_output_type: inline
+---
+
+
+**Problem 1** Hypothesis testing for normal distribution $\mathscr{N}(\mu,\sigma^2)$   
+1. Generate $100$ values of data `x` with exponential distribution $\mathscr{E}(\lambda)$  for $\lambda= k/10$, where $k$ is your number in the group list
+    
+2. Form `y` as `-2*x`    
+3. Test hypotheses  
+    (a) $H_0\,: \mu = \mu_0 = 10/k \quad \textrm{vs} \quad H_1\,: \mu < \mu_0$  
+    (b) $H_0\,: \mu_x = \mu_y \quad \textrm{vs} \quad H_1\,: \mu_x > \mu_y$  
+    (c) $H_0\,: \sigma^2 = 1 \quad \textrm{vs} \quad H_1\,: \sigma^2 > 1$  
+    (d) $H_0\,: \sigma^2_x = \sigma_y^2 \quad \textrm{vs} \quad H_1\,: \sigma^2_x < \sigma_y^2$  
+    
+4. For each test, provide a discussion of the results (p-value etc) and the decision to be made.
+   Comment on whether or not the results are expected in view of the special way the data are formed  
+
+5. Submit results as an `R Notebook` on `cms`. Do not forget to _rename_ your file
+
+```{r}
+## Your code and explanations here
+```
+
+

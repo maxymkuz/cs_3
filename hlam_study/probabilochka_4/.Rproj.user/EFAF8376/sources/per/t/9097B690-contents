@@ -1,0 +1,185 @@
+---
+title: "Lab 4"
+author: "Kuzyshyn, Mishchenko"
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+set.seed(056)
+```
+
+# Tasks 1 - 4
+
+## Generating sample data
+
+All of this is done according to the formula in the statement of the problem.
+
+```{r}
+n = 100
+m = 50
+k <- 1:(m + n)
+id <- 56  # Team ID
+a.data = sapply(k, function(x) (x * log(x^2 * id + pi))%%1)
+x = qnorm(a.data[1:n])
+y = qnorm(a.data[(n + 1):(n + m)])
+```
+
+## Task 1
+
+As variance is unknown, it's convenient to use the t-test here.
+
+As we have one-sided alternative, the rejection region would be:
+
+$C_\alpha = \{x \in R^{100} | t(x) \le t_{0.05}^{99}\}$
+
+```{r}
+# As std is unknown, let's estimate it firstly
+S <- sd(x)
+sample_mean <- mean(x)
+student <- (sample_mean - 0)* sqrt(100) / S
+t <- qt(0.05, df=99)
+
+if (student <= t){
+  print("The test concluded that the that the null hypothesis should be rejected at alpha = 0.05")
+} else{
+    print("The test concluded that the that the null hypothesis should not be rejected at alpha = 0.05")
+}
+
+t.test(x, mu = 0, alternative = "less")
+
+```
+
+As we can see, the p-value is slightly bigger than $\alpha$ so we do not reject our null hypothesis in this case.
+
+## Task 2
+
+Here, we test for the strict equality of $\mu_1$ and $\mu_2$ with variances assumed known: $\sigma^2_1=\sigma^2_2=2$.
+
+For this, we use the GLRT with test statistics $2log\textbf{L}_{x,y}(H_0, H_1)$ in comparison to $\chi^{(1)}_{1-\alpha}$, with test size equal to 0.05.
+
+```{r}
+alpha <- 0.05
+var <- 2
+
+chisq_statistic <- (m * n / (m + n)) * ((mean(x) - mean(y))^2 / var)
+```
+
+```{r, echo=FALSE}
+print(sprintf("GLRT value: %f", chisq_statistic))
+print(sprintf("Chi-squared distribution quantile of size %.2f: %f", 1 - alpha, qchisq(1 - alpha, df=1)))
+
+rejected <- (chisq_statistic >= qchisq(1 - alpha, df=1))
+if (rejected) {
+	print("The test concluded that the that the null hypothesis should be rejected at alpha = 0.05.")
+} else {
+	print("The test concluded that the that the null hypothesis should be accepted at alpha = 0.05.")
+}
+```
+
+You can also transform the coefficient into a z-score by using its square root, at which point you can use the z-test of size 1 - alpha / 2.
+
+```{r}
+norm_statistic <- sqrt(chisq_statistic)
+```
+
+```{r, echo=FALSE}
+print(sprintf("z-score: %f", norm_statistic))
+print(sprintf("Normal distribution quantile of size %.3f: %f", 1 - alpha / 2, qnorm(1 - alpha / 2)))
+
+rejected <- (norm_statistic >= qnorm(1 - alpha / 2))
+if (rejected) {
+	print(sprintf("The test concluded that the that the null hypothesis should be rejected at alpha = %.2f", alpha))
+} else {
+	print(sprintf("The test concluded that the that the null hypothesis should be accepted at alpha = %.2f", alpha))
+}
+```
+
+The p-value of these tests is identical, since they themselves are merely transformations of each other, and is exactly:
+
+```{r}
+pvalue <- 2 * pnorm(-norm_statistic)
+```
+
+```{r, echo=FALSE}
+print(sprintf("P-value: %f", pvalue))
+```
+
+Since usually null hypotheses are rejected for a p-value less than 0.05, we cannot reject it here.
+
+Thus, we conclude that $\mu_1$ and $\mu_2$ must be equal with $\sigma^2 = 2$.
+
+## Task 3
+
+Here, we test for $\sigma^2_1=1$ with $\mu_1=0$.
+
+This is a two-sided chi-squared test with the statistics of $V=\sum^n_{k=1}(X_k-\mu)^2/\sigma^2_0$
+
+```{r}
+alpha <- 0.05
+mu <- 0
+var <- 1
+
+chisq_statistic <- sum(((x - mu) ^ 2) / var)
+```
+
+```{r, echo=FALSE}
+print(sprintf("V: %f", chisq_statistic))
+print(sprintf("Chi-squared distribution quantile of size %.3f: %f", alpha / 2, qchisq(alpha / 2, df=1)))
+print(sprintf("Chi-squared distribution quantile of size %.3f: %f", 1 - alpha / 2, qchisq(1 - alpha / 2, df=1)))
+
+rejected <- (chisq_statistic >= qchisq(1 - alpha / 2, df=1) || chisq_statistic <= qchisq(alpha / 2, df=1))
+if (rejected) {
+	print(sprintf("The test concluded that the that the null hypothesis should be rejected at alpha = %.2f", alpha))
+} else {
+	print(sprintf("The test concluded that the that the null hypothesis should be accepted at alpha = %.2f", alpha))
+}
+```
+
+The p-value is twice the smaller of the chi-squared c.d.f. at V(X) or 1 minus the same value.
+
+```{r}
+pvalue <- 2 * min(pchisq(chisq_statistic, df=1),  1 - pchisq(chisq_statistic, df=1))
+```
+
+```{r, echo=FALSE}
+print(sprintf("P-value: %f", pvalue))
+```
+
+In this case, however, the statistic V(X) is so large that the p-value is too small for R's handler of float values.
+
+## Task 4
+
+### Problem 4
+
+In this problem, both means and both variances are unknown, so, according to hint, we should use the f-test here.
+
+Hence, our test statistics is $F = Var(x)/Var(y)$ and the rejection region would be:
+
+$C_{\alpha} = \{x \in R^{n} | F > F_{0.05, 99, 49}\}$
+
+```{r}
+S_x = var(x)
+S_y = var(y)
+
+f_statistic <- S_x / S_y
+
+f <- qf(alpha, 99, 49)
+
+if (f_statistic > f){
+  print("The test concluded that the that the null hypothesis should be rejected at alpha = 0.05")
+} else{
+    print("The test concluded that the that the null hypothesis should not be rejected at alpha = 0.05")
+}
+
+
+pf(f_statistic, 99, 49)
+```
+
+P-value turned out to be 0.003558429, so we can safely reject the null hypothesis, since it is much smaller than the 0.05 threshold.

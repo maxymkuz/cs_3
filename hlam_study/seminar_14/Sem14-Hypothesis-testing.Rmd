@@ -1,0 +1,123 @@
+---
+title: "Hypothesis testing for parameters of normal distribution"
+output:
+  html_document:
+    df_print: paged
+---
+
+**Install and load the required packages**
+
+```{r}
+require(BSDA)
+library(BSDA)
+require(EnvStats)   
+library(EnvStats)
+```
+
+
+**Example 1** Testing
+$$
+  H_0\,: \mu = \mu_0 (=0) \quad \textrm{vs} \quad H_1\,: \mu = \mu_1 (= 1)
+$$
+for normal distribution $\mathscr{N}(\mu,\sigma^2)$ with **known** $\sigma^2$  
+
+This is a $z$-test, based on the fact that under $H_0$ the distribution of the $Z$-statistics is standard normal:
+$$
+    Z : = \frac{\sqrt{\sigma}}{n}(\overline{\mathbf{X}} - \mu_0) \sim \mathscr{N}(0,1) \qquad {\text{under}} \quad H_0
+$$
+Alternative $H_1$ can be *one-sided* ($\mu>\mu_0$ or $\mu < \mu_0$) or *two-sided* ($\mu \ne \mu_0$); the corresponding $z$-test will also be one- or two-sided
+
+
+***Generate data***
+```{r}
+# set.seed(000)
+N <- 1000  # sample size
+##  data generation; observe that actually two different normal distribution are mixed up
+x <- rnorm(N, mean = c(-2,2), sd = c(1,2))
+##  plot the ecdf of the data and compares with the cdf of the standard normal distribution 
+plot(ecdf(x))
+points <- seq(-4,4,by=.01)
+lines(points, pnorm(points), col= "red")
+``` 
+
+***As we see, the data indeed consist of two superimposed normal distributions:***
+
+```{r} 
+## draw the histogram of the data
+hist(x, col = "lightblue", breaks = 20, probability = TRUE, ylim = c(0,0.4))
+points <- seq(-6, 8, by = 0.01)
+lines(points, dnorm(points, mean = -2, sd = 1), col = "red")
+lines(points, dnorm(points, mean = 2, sd = 2), col = "blue")
+```
+
+
+```{r}
+##  IMPORTANT: requires BSDA-package
+z.test(x, mu = 0, alternative = "l", sigma.x = 2.5)
+## can use "l" or "less" for alternative that $\mu$ is less than 0, 
+## "g" or "greater" for $\mu>0$, and "t" or "two-sided" for two-sided, $\mu \ne 0$
+```
+
+**Remarks**  
+
+- The alternative can be "l" for $\mu<0$, "g" for $\mu>0$, and "t" for two-sided, $\mu \ne0$  
+- z.test requires known variance, $\sigma^2$  
+- the 95% confidence interval for $\mu$ contains $\mu=0$, that's why we cannot reject $H_0$ (recall the duality between the confidence intervals and the acceptance regions); the $p$-value is large  
+- the confidence level can be set by specifying confidence level as in `confidence = .99`
+- z-test is rarely used in practice since usually $\sigma$ is *not* known 
+
+**Example 2** _When $\sigma^2$ is not known, the `t.test` is used; the corresponding $T$-statistics_
+
+$$
+  T(X) := \frac{\sqrt{n}}{S}(\overline{\mathbf{X}} - \mu_0) = \frac{Z}{S/\sigma}
+$$
+has the *Student* $\mathscr{T}_{n-1}$-distribution under $H_0$. Therefore, it is enough to replace $z$-statistics and quantiles with $t$-statistics and quantiles
+
+```{r}
+t.test(x, alternative = "two.sided", conf.level = .99)    ## test the (default) H_0: mu = 0 vs H_1: mu \ne 0
+```
+
+**Example 3** _Comparison of two means_
+
+```{r}
+# test the hypothesis that mu_x is larger than mu_y
+t.test(x=x[x<0], y=x[x>0], alternative = "l")
+# clearly, we should stick to the alternative here
+```
+
+
+**Example 4** _Hypothesis testing for variances (one sample)_
+$$
+  H_0\,: \sigma^2 = \sigma^2_0 \quad \textrm{vs} \quad H_1\,: \sigma^2 > \sigma^2_0 \qquad  (\textrm{or}\  <,\ \ne)
+$$
+
+```{r}
+## 
+## requires package EnvStats
+##
+varTest(x, sigma.squared = 1, alternative = "t")
+```
+
+**Example 5** _Hypothesis testing for variances (two means)_ 
+
+```{r}
+var.test(x[x<0],x[x>0], alternative = "g")
+```
+**Example 6** _Kolmogorov-Smirnov test_ 
+
+
+```{r}
+z <- rnorm(100)
+ks.test(x = x[x<0], y = x[x>0], alternative = "g")
+```
+
+
+
+```{r}
+plot(ecdf(x[x<0]), col = "darkblue",xlim = c(-5,8))
+lines(ecdf(x[x>0]), col= "red")
+```
+
+
+**The task for seminar 14 is in a separate file** 
+

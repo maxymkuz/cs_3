@@ -1,0 +1,10 @@
+15:48:28 **** Build of configuration Debug for project dalekomir ****
+make -j8 all 
+arm-none-eabi-size   dalekomir.elf 
+   text	   data	    bss	    dec	    hex	filename
+  42588	    524	   8428	  51540	   c954	dalekomir.elf
+Finished building: default.size.stdout
+ 
+
+15:48:30 Build Finished. 0 errors, 0 warnings. (took 1s.906ms)
+

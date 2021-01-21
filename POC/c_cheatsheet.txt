@@ -1,0 +1,42 @@
+
+# ARRAYS
+
+type name[size1][size2]...[sizeN];
+
+
+# STRINGS
+
+char * name = "John Smith";  // pointer to a single character
+printf("%d\n",strlen(name));
+
+char name[] = "John Smith"; // так зле
+
+
+# POINTERS
+* - dereferencing
+& - make a pointer
+
+
+# PRINT
+%p - pointer
+%zu - size_t
+
+
+# MEMORY
+malloc()
+free()
+
+# STATIC
+static int count = 0;
+// will be in memory inside a function
+
+# STRUCT
+typedef struct {int x;} point;
+point p;p.x = 10;
+
+
+
+# HLAM
+char **pvowels = (char **) malloc(nrows * sizeof(char *));
+pvowels[0] = (char *) malloc(ncols * sizeof(char));
+pvowels[1] = (char *) malloc(ncols * sizeof(char));
